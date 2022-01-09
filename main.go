@@ -4,14 +4,19 @@ import (
 	"approvez-backend/database"
 	"approvez-backend/routes"
 	"context"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func main() {
 	database.Connect()
+
+	godotenv.Load()
+	port := os.Getenv("PORT")
 
 	app := fiber.New()
 
@@ -25,5 +30,8 @@ func main() {
 		panic(err)
 	}
 
-	app.Listen(":8000")
+	if port != "" {
+		app.Listen(":8000")
+	}
+	app.Listen(":" + port)
 }

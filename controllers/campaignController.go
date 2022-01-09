@@ -31,17 +31,28 @@ func CreateCampaign(c *fiber.Ctx) error {
 			"message": err,
 		})
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	campaign.ID = primitive.NewObjectID()
-	campaign.CreatedBy = userID
+	//Finding User name
+	var creator models.User
+	usersCollection := database.MongoClient.Database("approvEZDB").Collection("users")
+	err = usersCollection.FindOne(ctx, bson.M{"_id": userID}).Decode(&creator)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"message": err,
+		})
+	}
+
+	campaign.CreatedBy = creator.Name
 	campaign.Name = data["name"]
 	campaign.Status = data["status"]
 	campaign.CoverImage = data["coverImage"]
-	campaign.TimeCreated = time.Now().UnixNano() / 1e6
+	campaign.TimeCreated = primitive.Timestamp{T: uint32(time.Now().Unix())}
 
 	collection := database.MongoClient.Database("approvEZDB").Collection("campaigns")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
 
 	_, err = collection.InsertOne(ctx, campaign)
 	if err != nil {

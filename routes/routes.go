@@ -16,4 +16,11 @@ func Setup(app *fiber.App) {
 	//Campaign
 	app.Post("/api/campaign/create", controllers.CreateCampaign)
 	app.Get("/api/campaign/get", controllers.GetCampaigns)
+
+	//Posts
+	app.Post("/api/posts/create", controllers.CreatePost)
+	app.Post("/api/posts/delete", controllers.DeletePost)
+	app.Get("/api/posts/getall", controllers.GetPosts)
+	app.Get("/api/posts/get", controllers.GetPost)
+	app.Post("/api/posts/update", controllers.UpdatePost)
 }

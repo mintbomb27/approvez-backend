@@ -4,6 +4,7 @@ import (
 	"approvez-backend/database"
 	"approvez-backend/routes"
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,7 +17,8 @@ func main() {
 	database.Connect()
 
 	godotenv.Load()
-	port := os.Getenv("PORT")
+	port := "localhost:" + os.Getenv("PORT")
+	fmt.Print(port)
 
 	app := fiber.New()
 
@@ -30,8 +32,8 @@ func main() {
 		panic(err)
 	}
 
-	if port != "" {
-		app.Listen(":8000")
+	if port == "" {
+		app.Listen(":5000")
 	}
-	app.Listen(":" + port)
+	app.Listen(port)
 }

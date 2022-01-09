@@ -17,7 +17,7 @@ func main() {
 	database.Connect()
 
 	godotenv.Load()
-	port := "localhost:" + os.Getenv("PORT")
+	port := os.Getenv("PORT")
 	fmt.Print(port)
 
 	app := fiber.New()
@@ -35,5 +35,5 @@ func main() {
 	if port == "" {
 		app.Listen(":5000")
 	}
-	app.Listen(port)
+	app.Listen(":" + port)
 }

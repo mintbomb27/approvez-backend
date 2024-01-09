@@ -1,4 +1,4 @@
-name: Scan Code using SonarQube
+name: Consolidated Scan using KubeLinter, KubeScape, SonarQube
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
       uses: stackrox/kube-linter-action@v1.0.4
       id: kube-linter-action-scan
       with:
-        directory: charts/
+        directory: ./
         format: sarif
         output-file: kube-linter.sarif
       continue-on-error: true

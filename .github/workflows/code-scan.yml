@@ -1,0 +1,57 @@
+name: Scan Code using SonarQube
+
+on:
+  push:
+    branches:
+      - main
+
+
+jobs:
+  kubescape:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: kubescape/github-action@main
+      continue-on-error: true
+      with:
+        format: sarif
+        outputFile: results
+    - name: Upload Kubescape scan results to Github Code Scanning
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: results.sarif
+  kubelinter:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Scan yaml files with kube-linter
+      uses: stackrox/kube-linter-action@v1.0.4
+      id: kube-linter-action-scan
+      with:
+        directory: charts/
+        format: sarif
+        output-file: kube-linter.sarif
+      continue-on-error: true
+    - name: Upload SARIF report files to GitHub
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: kube-linter.sarif
+  sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - name: Sonar SARIF Exporter
+        uses: mintbomb27/sonar-sarif-exporter@main
+        with:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_URL: ${{ secrets.SONAR_HOST_URL }}
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: output.sarif
